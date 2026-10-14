@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Blossom Boutique – Stylish, affordable fashion delivered island-wide across Sri Lanka." />
+  <meta name="theme-color" content="#c9789e" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>Blossom Boutique | Sri Lanka Fashion</title>
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- GSAP (animations) + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <!-- ── PRELOADER ─────────────────────────────────────────── -->
+  <div id="preloader" aria-hidden="true">
+    <div class="preloader-inner">
+      <svg class="preloader-bloom" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="40" stroke="var(--clr-primary)" stroke-width="4" fill="none" stroke-dasharray="251" stroke-dashoffset="251">
+          <animate attributeName="stroke-dashoffset" from="251" to="0" dur="1.2s" ease="easeInOut" repeatCount="indefinite"/>
+        </circle>
+        <text x="50%" y="54%" text-anchor="middle" fill="var(--clr-primary)" font-size="11" font-family="serif">🌸</text>
+      </svg>
+      <p>Loading Blossom…</p>
+    </div>
+  </div>
+
+  <!-- ── TOAST NOTIFICATION ────────────────────────────────── -->
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <!-- ── CART DRAWER ───────────────────────────────────────── -->
+  <div id="cart-overlay" class="cart-overlay"></div>
+  <aside id="cart-drawer" class="cart-drawer" aria-label="Shopping cart">
+    <div class="cart-header">
+      <h2>Your Cart <span id="cart-badge-drawer">0</span></h2>
+      <button id="cart-close" class="cart-close" aria-label="Close cart">✕</button>
+    </div>
+    <div id="cart-items" class="cart-items">
+      <div class="cart-empty">
+        <span>🛍️</span>
+        <p>Your cart is empty</p>
+        <a href="#collection" class="btn btn-primary" id="cart-shop-link">Start Shopping</a>
+      </div>
+    </div>
+    <div id="cart-footer" class="cart-footer hidden">
+      <div class="cart-total">
+        <span>Total</span>
+        <strong id="cart-total-amount">Rs. 0</strong>
+      </div>
+      <button id="checkout-btn" class="btn btn-wa full-width">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.559 4.122 1.529 5.855L.057 23.886a.5.5 0 0 0 .614.612l6.169-1.607A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.644-.516-5.148-1.41l-.366-.22-3.793.988.997-3.71-.239-.381A9.937 9.937 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Order via WhatsApp
+      </button>
+      <button id="clear-cart-btn" class="btn btn-ghost full-width">Clear Cart</button>
+    </div>
+  </aside>
+
+  <!-- ── QUICK VIEW MODAL ───────────────────────────────────── -->
+  <div id="modal-overlay" class="modal-overlay"></div>
+  <div id="quick-view-modal" class="quick-view-modal" role="dialog" aria-modal="true" aria-labelledby="modal-product-name">
+    <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+    <div class="modal-body">
+      <div class="modal-img-wrap">
+        <img id="modal-img" src="" alt="" loading="lazy" />
+        <span id="modal-badge" class="badge hidden"></span>
+      </div>
+      <div class="modal-info">
+        <span id="modal-category" class="section-label"></span>
+        <h2 id="modal-product-name"></h2>
+        <div class="modal-rating" id="modal-rating"></div>
+        <p id="modal-price" class="modal-price"></p>
+        <p id="modal-desc" class="modal-desc"></p>
+
+        <div class="modal-selects">
+          <div class="select-group">
+            <label>Size</label>
+            <div id="modal-sizes" class="size-pills"></div>
+          </div>
+          <div class="select-group">
+            <label>Color</label>
+            <div id="modal-colors" class="color-pills"></div>
+          </div>
+        </div>
+
+        <div class="modal-qty">
+          <label>Qty</label>
+          <div class="qty-control">
+            <button class="qty-btn" id="qty-minus">−</button>
+            <span id="qty-value">1</span>
+            <button class="qty-btn" id="qty-plus">+</button>
+          </div>
+        </div>
+
+        <button id="modal-add-cart" class="btn btn-primary full-width modal-add-btn">
+          🛒 Add to Cart
+        </button>
+        <a id="modal-wa-btn" href="#" target="_blank" class="btn btn-wa full-width" style="margin-top:.6rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.559 4.122 1.529 5.855L.057 23.886a.5.5 0 0 0 .614.612l6.169-1.607A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.644-.516-5.148-1.41l-.366-.22-3.793.988.997-3.71-.239-.381A9.937 9.937 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          Buy directly on WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+  <header id="site-header">
+    <div class="container nav-wrap">
+
+      <a href="#home" class="logo">
+        <span class="logo-icon">🌸</span>
+        <span>Blossom <em>Boutique</em></span>
+      </a>
+
+      <nav aria-label="Main navigation">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="#home"       class="nav-link">Home</a></li>
+          <li><a href="#collection" class="nav-link">Collection</a></li>
+          <li><a href="#about"      class="nav-link">About</a></li>
+          <li><a href="#reviews"    class="nav-link">Reviews</a></li>
+          <li><a href="#contact"    class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Dark mode -->
+        <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode" title="Dark mode">
+          <span class="theme-icon">🌙</span>
+        </button>
+
+        <!-- Search -->
+        <button id="search-toggle" class="icon-btn" aria-label="Search products" title="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+
+        <!-- Cart -->
+        <button id="cart-toggle" class="icon-btn cart-btn" aria-label="Open cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span id="cart-badge" class="cart-badge hidden">0</span>
+        </button>
+
+        <!-- Hamburger -->
+        <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Search bar (slides in) -->
+    <div id="search-bar" class="search-bar hidden">
+      <div class="container">
+        <input type="search" id="search-input" placeholder="Search dresses, tops, skirts…" autocomplete="off" />
+        <button id="search-close" class="icon-btn" aria-label="Close search">✕</button>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ── HERO ───────────────────────────────────────────────── -->
+  <section id="home" class="hero">
+    <div class="hero-slides">
+      <div class="hero-slide active" style="--bg:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&auto=format&fit=crop')"></div>
+      <div class="hero-slide"       style="--bg:url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1400&auto=format&fit=crop')"></div>
+      <div class="hero-slide"       style="--bg:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1400&auto=format&fit=crop')"></div>
+    </div>
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-content">
+      <span class="hero-tag reveal-up">✨ New Arrivals 2024</span>
+      <h1 class="reveal-up delay-1">Elegance in<br><em>Every Thread</em></h1>
+      <p class="reveal-up delay-2">Hand-picked styles for every Sri Lankan woman — delivered island-wide in 2–4 days.</p>
+      <div class="hero-cta reveal-up delay-3">
+        <a href="#collection" class="btn btn-primary hero-btn">Explore Collection →</a>
+        <a href="https://wa.me/94762246348" target="_blank" class="btn btn-wa hero-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.559 4.122 1.529 5.855L.057 23.886a.5.5 0 0 0 .614.612l6.169-1.607A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.644-.516-5.148-1.41l-.366-.22-3.793.988.997-3.71-.239-.381A9.937 9.937 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          Chat with Us
+        </a>
+      </div>
+    </div>
+
+    <!-- Slide dots -->
+    <div class="hero-dots" aria-label="Hero slides">
+      <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+      <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+      <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+    </div>
+
+    <!-- Scroll cue -->
+    <div class="scroll-cue" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+  </section>
+
+
+  <!-- ── STATS TICKER ───────────────────────────────────────── -->
+  <div class="stats-bar">
+    <div class="container stats-wrap">
+      <div class="stat-item">
+        <strong class="count-up" data-target="500">0</strong>+
+        <span>Happy Customers</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <strong class="count-up" data-target="12">0</strong>
+        <span>Categories</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <strong class="count-up" data-target="200">0</strong>+
+        <span>Products</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <strong>4.8 ★</strong>
+        <span>Average Rating</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── COLLECTION ─────────────────────────────────────────── -->
+  <section id="collection" class="section-pad bg-accent">
+    <div class="container">
+      <span class="section-label reveal-fade">Our Collection</span>
+      <div class="collection-head">
+        <div>
+          <h2 class="section-title reveal-up">Shop the Latest Styles</h2>
+          <p class="section-sub reveal-up">Fresh arrivals every week — order via WhatsApp with no app needed!</p>
+        </div>
+        <!-- Sort -->
+        <select id="sort-select" class="sort-select reveal-fade" aria-label="Sort products">
+          <option value="">Sort by</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="rating">Top Rated</option>
+          <option value="popular">Most Popular</option>
+        </select>
+      </div>
+
+      <!-- Category pills -->
+      <div id="filter-pills" class="filter-pills" role="group" aria-label="Filter by category">
+        <button class="filter-pill active" data-cat="all">All</button>
+        <button class="filter-pill" data-cat="dresses">Dresses</button>
+        <button class="filter-pill" data-cat="tops">Tops</button>
+        <button class="filter-pill" data-cat="skirts">Skirts</button>
+        <button class="filter-pill" data-cat="sets">Sets</button>
+        <button class="filter-pill" data-cat="jumpsuits">Jumpsuits</button>
+        <button class="filter-pill" data-cat="outerwear">Outerwear</button>
+        <button class="filter-pill" data-cat="bottoms">Bottoms</button>
+      </div>
+
+      <!-- Loading skeleton -->
+      <div id="product-skeleton" class="product-grid">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+
+      <!-- Product grid (populated by JS) -->
+      <div id="product-grid" class="product-grid hidden"></div>
+
+      <!-- No results -->
+      <div id="no-results" class="no-results hidden">
+        <span>🔍</span>
+        <p>No products found. Try a different search or filter.</p>
+        <button id="reset-filters" class="btn btn-primary">Show All</button>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ── WHY US ─────────────────────────────────────────────── -->
+  <section id="info" class="section-pad bg-white">
+    <div class="container">
+      <span class="section-label reveal-fade">Why Choose Us</span>
+      <h2 class="section-title reveal-up">Shop with Confidence</h2>
+
+      <div class="info-grid">
+        <div class="info-card reveal-up">
+          <div class="info-icon-wrap">🚚</div>
+          <h3>Island-wide Delivery</h3>
+          <p>We deliver to every corner of Sri Lanka — Colombo to Jaffna, within 2–4 days.</p>
+        </div>
+        <div class="info-card reveal-up delay-1">
+          <div class="info-icon-wrap">🔄</div>
+          <h3>Easy Size Exchange</h3>
+          <p>Wrong size? No stress. Message us on WhatsApp and we'll sort it out hassle-free.</p>
+        </div>
+        <div class="info-card reveal-up delay-2">
+          <div class="info-icon-wrap">💵</div>
+          <h3>Cash on Delivery</h3>
+          <p>Pay when your order arrives — no card or online payment needed. 100% safe.</p>
+        </div>
+        <div class="info-card reveal-up delay-3">
+          <div class="info-icon-wrap">🛡️</div>
+          <h3>Quality Guarantee</h3>
+          <p>Every piece is quality-checked before dispatch. We stand behind every stitch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── ABOUT ──────────────────────────────────────────────── -->
+  <section id="about" class="section-pad bg-accent">
+    <div class="container about-wrap">
+      <div class="about-media reveal-left">
+        <div class="about-img-frame">
+          <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=600&auto=format&fit=crop" alt="Inside Blossom Boutique" loading="lazy" />
+        </div>
+        <div class="about-float-card">
+          <strong>500+</strong>
+          <span>Orders Delivered</span>
+        </div>
+      </div>
+
+      <div class="about-text reveal-right">
+        <span class="section-label">Our Story</span>
+        <h2 class="section-title">About Blossom Boutique</h2>
+        <p class="section-sub">Started from a small room in Colombo, Blossom Boutique was born out of a love for affordable, stylish fashion for every Sri Lankan woman.</p>
+        <p class="section-sub">Our goal is to make every customer feel confident and beautiful without breaking the bank. We source trendy pieces and make ordering simple — just a WhatsApp message away.</p>
+
+        <ul class="about-perks">
+          <li>✅ Hand-curated pieces updated weekly</li>
+          <li>✅ Free delivery on orders over Rs. 5,000</li>
+          <li>✅ Exclusive member discounts coming soon</li>
+        </ul>
+
+        <a href="https://wa.me/94762246348?text=Hi!%20I%20want%20to%20know%20more%20about%20your%20collection" target="_blank" class="btn btn-primary">Chat with Us 💬</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── REVIEWS ────────────────────────────────────────────── -->
+  <section id="reviews" class="section-pad bg-white">
+    <div class="container">
+      <span class="section-label reveal-fade">Customer Love</span>
+      <h2 class="section-title reveal-up">What People Are Saying</h2>
+
+      <div class="reviews-carousel" id="reviews-track">
+        <!-- Populated by JS -->
+      </div>
+      <div class="carousel-dots" id="review-dots"></div>
+    </div>
+  </section>
+
+
+  <!-- ── NEWSLETTER ─────────────────────────────────────────── -->
+  <div class="newsletter-banner reveal-up">
+    <div class="container newsletter-inner">
+      <div class="newsletter-text">
+        <h3>Get Notified of New Arrivals 🌸</h3>
+        <p>Drop your WhatsApp number and be the first to know about new collections & flash sales.</p>
+      </div>
+      <form id="newsletter-form" class="newsletter-form" novalidate>
+        <input type="tel" id="nl-phone" placeholder="+94 7X XXX XXXX" pattern="[0-9+\s]+" required />
+        <button type="submit" class="btn btn-primary">Notify Me</button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ── CONTACT ────────────────────────────────────────────── -->
+  <section id="contact" class="section-pad bg-accent">
+    <div class="container">
+      <span class="section-label reveal-fade">Get in Touch</span>
+      <h2 class="section-title reveal-up">Find Us Here</h2>
+      <p class="section-sub reveal-up">Reach us on your favourite platform — we reply fast! 😊</p>
+
+      <div class="contact-grid">
+        <a class="contact-card wa reveal-up" href="https://wa.me/94762246348" target="_blank">
+          <span class="contact-icon">💬</span>
+          <h4>WhatsApp</h4>
+          <span>+94 70 000 0000</span>
+          <span class="contact-cta">Message Now →</span>
+        </a>
+        <a class="contact-card ig reveal-up delay-1" href="https://instagram.com/blossom.boutique.lk" target="_blank">
+          <span class="contact-icon">📸</span>
+          <h4>Instagram</h4>
+          <span>@blossom.boutique.lk</span>
+          <span class="contact-cta">Follow Us →</span>
+        </a>
+        <a class="contact-card fb reveal-up delay-2" href="https://facebook.com/BlossomBoutiqueLK" target="_blank">
+          <span class="contact-icon">📘</span>
+          <h4>Facebook</h4>
+          <span>Blossom Boutique LK</span>
+          <span class="contact-cta">Like Our Page →</span>
+        </a>
+        <div class="contact-card loc reveal-up delay-3">
+          <span class="contact-icon">📍</span>
+          <h4>Location</h4>
+          <span>Colombo, Sri Lanka</span>
+          <span class="contact-cta">Online Orders Only</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="#home" class="logo footer-logo">🌸 Blossom <em>Boutique</em></a>
+        <p>Stylish, affordable fashion for every Sri Lankan woman.</p>
+      </div>
+      <div class="footer-links">
+        <h5>Quick Links</h5>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#collection">Collection</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Categories</h5>
+        <ul>
+          <li><a href="#collection">Dresses</a></li>
+          <li><a href="#collection">Tops</a></li>
+          <li><a href="#collection">Skirts</a></li>
+          <li><a href="#collection">Outerwear</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h5>Contact</h5>
+        <p>📱 +94 76 224 6348</p>
+        <p>📍 Colombo, Sri Lanka</p>
+        <div class="footer-social">
+          <a href="https://wa.me/94762246348" target="_blank" aria-label="WhatsApp">💬</a>
+          <a href="https://instagram.com/blossom.boutique.lk" target="_blank" aria-label="Instagram">📸</a>
+          <a href="https://facebook.com/BlossomBoutiqueLK" target="_blank" aria-label="Facebook">📘</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 <strong>Blossom Boutique</strong> · Sri Lanka · All rights reserved.</p>
+      <p class="footer-credit">Built with 💗 · <span id="api-tech-badge">Node.js + Express API</span></p>
+    </div>
+  </footer>
+
+  <!-- ── BACK TO TOP ────────────────────────────────────────── -->
+  <button id="back-to-top" class="back-to-top hidden" aria-label="Back to top">↑</button>
+
+  <!-- ── FLOATING WA BUTTON ────────────────────────────────── -->
+  <a href="https://wa.me/94762246348?text=Hi!%20I'm%20interested%20in%20your%20collection" target="_blank" class="wa-float" aria-label="Chat on WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.559 4.122 1.529 5.855L.057 23.886a.5.5 0 0 0 .614.612l6.169-1.607A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.644-.516-5.148-1.41l-.366-.22-3.793.988.997-3.71-.239-.381A9.937 9.937 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+  </a>
+
+  <!-- ── Scripts ────────────────────────────────────────────── -->
+  <script src="js/app.js"></script>
+</body>
+</html>
